@@ -1,7 +1,10 @@
 <script>
-// import todos from './data/todo'
+import StatusFiletr from './components/StatusFilter.vue'
 
 export default {
+  components: {
+    StatusFiletr,
+  },
   data() {
     let todos = []
     const jsonData = localStorage.getItem('todos') || '[]'
@@ -14,6 +17,7 @@ export default {
     return {
       todos,
       title: '',
+      status: 'all',
     }
   },
   computed: {
@@ -123,23 +127,7 @@ export default {
           {{ activeTodos.length }} items left
         </span>
 
-        <nav class="filter" data-cy="Filter">
-          <a href="#/" class="filter__link selected" data-cy="FilterLinkAll">
-            All
-          </a>
-
-          <a href="#/active" class="filter__link" data-cy="FilterLinkActive">
-            Active
-          </a>
-
-          <a
-            href="#/completed"
-            class="filter__link"
-            data-cy="FilterLinkCompleted"
-          >
-            Completed
-          </a>
-        </nav>
+        <StatusFiletr v-model="status" />
 
         <button
           type="button"
