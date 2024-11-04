@@ -1,8 +1,16 @@
 <script>
-import todos from './data/todo'
+// import todos from './data/todo'
 
 export default {
   data() {
+    let todos = []
+    const jsonData = localStorage.getItem('todos') || '[]'
+    try {
+      todos = JSON.parse(jsonData)
+    } catch (e) {
+      console.log(e)
+    }
+
     return {
       todos,
       title: '',
@@ -11,6 +19,14 @@ export default {
   computed: {
     activeTodos() {
       return this.todos.filter(todo => !todo.completed)
+    },
+  },
+  watch: {
+    todos: {
+      deep: true,
+      handler() {
+        localStorage.setItem('todos', JSON.stringify(this.todos))
+      },
     },
   },
   methods: {
