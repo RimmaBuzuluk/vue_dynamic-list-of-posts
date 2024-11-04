@@ -45,7 +45,7 @@ export default {
               data-cy="TodoStatus"
               type="checkbox"
               class="todo__status"
-              :checked="todo.completed"
+              v-model="todo.completed"
             />
           </label>
 
@@ -63,7 +63,12 @@ export default {
               {{ todo.title }}
             </span>
 
-            <button type="button" class="todo__remove" data-cy="TodoDelete">
+            <button
+              type="button"
+              class="todo__remove"
+              data-cy="TodoDelete"
+              v-on:click="todos.splice(indexedDB, 1)"
+            >
               ×
             </button>
           </template>
