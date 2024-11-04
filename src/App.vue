@@ -5,11 +5,22 @@ export default {
   data() {
     return {
       todos,
+      title: '',
     }
   },
   computed: {
     activeTodos() {
       return this.todos.filter(todo => !todo.completed)
+    },
+  },
+  methods: {
+    handleSubmit() {
+      this.todos.push({
+        id: Date.now(),
+        title: this.title,
+        completed: false,
+      })
+      this.title = ''
     },
   },
 }
@@ -28,12 +39,13 @@ export default {
           data-cy="ToggleAllButton"
         ></button>
 
-        <form>
+        <form @submit.prevent="handleSubmit">
           <input
             data-cy="NewTodoField"
             type="text"
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
+            v-model="title"
           />
         </form>
       </header>
