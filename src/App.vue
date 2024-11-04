@@ -1,9 +1,11 @@
 <script>
 import StatusFiletr from './components/StatusFilter.vue'
+import TodoItem from './components/TodoItem.vue'
 
 export default {
   components: {
     StatusFiletr,
+    TodoItem,
   },
   data() {
     let todos = []
@@ -71,55 +73,13 @@ export default {
       </header>
 
       <section class="doapp__main" data-cy="TodoList">
-        <div
-          data-cy="Todo"
-          v-for="todo of todos"
+        <TodoItem
+          v-for="(todo, index) of todos"
           :key="todo.id"
-          class="todo"
-          :class="{ completed: todo.completed }"
-        >
-          <label class="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              class="todo__status"
-              v-model="todo.completed"
-            />
-          </label>
-
-          <form v-if="false">
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              class="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value="Todo is being edited now"
-            />
-          </form>
-          <template v-else>
-            <span data-cy="TodoTitle" class="todo__title">
-              {{ todo.title }}
-            </span>
-
-            <button
-              type="button"
-              class="todo__remove"
-              data-cy="TodoDelete"
-              v-on:click="todos.splice(indexedDB, 1)"
-            >
-              ×
-            </button>
-          </template>
-
-          <div
-            data-cy="TodoLoader"
-            class="modal overlay"
-            :class="{ 'is-active': false }"
-          >
-            <div clasclasssName="modal-background has-background-white-ter" />
-            <div class="loader" />
-          </div>
-        </div>
+          :todo="todo"
+          @update="todos[index] = $event"
+          @delete="todos.splice(index, 1)"
+        />
       </section>
 
       <footer class="todoapp__footer" data-cy="Footer">
