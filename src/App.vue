@@ -26,6 +26,19 @@ export default {
     activeTodos() {
       return this.todos.filter(todo => !todo.completed)
     },
+    completedTodos() {
+      return this.todos.filter(todo => todo.completed)
+    },
+    visibleTodos() {
+      switch (this.status) {
+        case 'active':
+          return this.activeTodos
+        case 'completed':
+          return this.completedTodos
+        default:
+          return this.todos
+      }
+    },
   },
   watch: {
     todos: {
@@ -72,15 +85,20 @@ export default {
         </form>
       </header>
 
-      <section class="doapp__main" data-cy="TodoList">
+      <TransitionGroup
+        name="list"
+        tag="section"
+        class="doapp__main"
+        data-cy="TodoList"
+      >
         <TodoItem
-          v-for="(todo, index) of todos"
+          v-for="todo of visibleTodos"
           :key="todo.id"
           :todo="todo"
-          @update="todos[index] = $event"
-          @delete="todos.splice(index, 1)"
+          @update="Object.assign(todo, $event)"
+          @delete="todos.splice(todos.indexOf, 1)"
         />
-      </section>
+      </TransitionGroup>
 
       <footer class="todoapp__footer" data-cy="Footer">
         <span class="todo-count" data-cy="TodosCounter">
@@ -115,3 +133,17 @@ export default {
     </div> -->
   </div>
 </template>
+
+<style>
+.list-enter-active,
+.list-leave-active {
+  max-height: 60px;
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: scaleY();
+}
+</style>
