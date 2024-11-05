@@ -1,5 +1,6 @@
 <script>
 import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos'
+import Message from './components/Message.vue'
 import StatusFiletr from './components/StatusFilter.vue'
 import TodoItem from './components/TodoItem.vue'
 
@@ -7,12 +8,14 @@ export default {
   components: {
     StatusFiletr,
     TodoItem,
+    Message,
   },
   data() {
     return {
       todos: [],
       title: '',
       status: 'all',
+      errorMessage: '',
     }
   },
   computed: {
@@ -35,26 +38,46 @@ export default {
   },
 
   mounted() {
-    getTodos().then(({ data }) => {
-      this.todos = data
-    })
+    getTodos()
+      .then(({ data }) => {
+        this.todos = data
+      })
+      .catch(() => {
+        console.log('err')
+        this.errorMessage = 'Unable to load todos'
+      })
   },
   methods: {
     handleSubmit() {
-      postTodo(this.title).then(({ data }) => {
-        this.todos.push(data)
-      })
+      postTodo(this.title)
+        .then(({ data }) => {
+          this.todos.push(data)
+        })
+        .catch(() => {
+          console.log('err')
+          this.errorMessage = 'Unable to load todos'
+        })
       this.title = ''
     },
     updateTodo({ id, title, completed }) {
       updateTodo({ id, title, completed }).then(({ data }) => {
-        this.todos = this.todos.map(todo => (todo.id !== id ? todo : data))
+        this.todos = this.todos.map(todo =>
+          (todo.id !== id ? todo : data).catch(() => {
+            console.log('err')
+            this.errorMessage = 'Unable to update a todo'
+          }),
+        )
       })
     },
     deleteTodo(todoId) {
-      deleteTodo(todoId).then(() => {
-        this.todos = this.todos.filter(todo => todo.id !== todoId)
-      })
+      deleteTodo(todoId)
+        .then(() => {
+          this.todos = this.todos.filter(todo => todo.id !== todoId)
+        })
+        .catch(() => {
+          console.log('err')
+          this.errorMessage = 'Unable to delete a todo'
+        })
     },
   },
 }
@@ -116,20 +139,12 @@ export default {
         </button>
       </footer>
     </div>
-    <!-- <div
-      data-cy="ErrorNotification"
-      class="notification is-danger is-light has-text-weight-normal"
-    >
-      <button data-cy="HideErrorButton" type="button" class="delete" />
-      <br />
-      Title should not be empty
-      <br />
-      Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo
-    </div> -->
+
+    <Message
+      :text="errorMessage"
+      :active="errorMessage !== ''"
+      @hide="errorMessage = ''"
+    />
   </div>
 </template>
 
