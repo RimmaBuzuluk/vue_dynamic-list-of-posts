@@ -1,4 +1,5 @@
 <script>
+import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos'
 import StatusFiletr from './components/StatusFilter.vue'
 import TodoItem from './components/TodoItem.vue'
 
@@ -8,16 +9,8 @@ export default {
     TodoItem,
   },
   data() {
-    let todos = []
-    const jsonData = localStorage.getItem('todos') || '[]'
-    try {
-      todos = JSON.parse(jsonData)
-    } catch (e) {
-      console.log(e)
-    }
-
     return {
-      todos,
+      todos: [],
       title: '',
       status: 'all',
     }
@@ -40,22 +33,28 @@ export default {
       }
     },
   },
-  watch: {
-    todos: {
-      deep: true,
-      handler() {
-        localStorage.setItem('todos', JSON.stringify(this.todos))
-      },
-    },
+
+  mounted() {
+    getTodos().then(({ data }) => {
+      this.todos = data
+    })
   },
   methods: {
     handleSubmit() {
-      this.todos.push({
-        id: Date.now(),
-        title: this.title,
-        completed: false,
+      postTodo(this.title).then(({ data }) => {
+        this.todos.push(data)
       })
       this.title = ''
+    },
+    updateTodo({ id, title, completed }) {
+      updateTodo({ id, title, completed }).then(({ data }) => {
+        this.todos = this.todos.map(todo => (todo.id !== id ? todo : data))
+      })
+    },
+    deleteTodo(todoId) {
+      deleteTodo(todoId).then(() => {
+        this.todos = this.todos.filter(todo => todo.id !== todoId)
+      })
     },
   },
 }
@@ -95,8 +94,8 @@ export default {
           v-for="todo of visibleTodos"
           :key="todo.id"
           :todo="todo"
-          @update="Object.assign(todo, $event)"
-          @delete="todos.splice(todos.indexOf, 1)"
+          @update="updateTodo"
+          @delete="deleteTodo(todo.id)"
         />
       </TransitionGroup>
 
